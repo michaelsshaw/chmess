@@ -14,9 +14,9 @@ struct piece_mapping {
 /* Wasting space because fast */
 static struct piece_mapping mappings[115] = { { 0 } };
 
-char board[64];
+struct board board;
 
-void fen_to_arr(const char *fen, char *out)
+void fen_to_arr(const char *fen, struct board *board)
 {
 	int i = 0;
 	int j = 0;
@@ -29,10 +29,10 @@ void fen_to_arr(const char *fen, char *out)
 
 		if (fen[i] >= '1' && fen[i] <= '8') {
 			for (int k = 0; k < fen[i] - '0'; k++) {
-				out[j++] = 0;
+				board->board[j++] = 0;
 			}
 		} else {
-			out[j++] = mappings[(int)fen[i]].id;
+			board->board[j++] = mappings[(int)fen[i]].id;
 		}
 
 		i++;
@@ -41,7 +41,7 @@ void fen_to_arr(const char *fen, char *out)
 
 void board_init()
 {
-	memset(board, 0, 64);
+	memset(&board, 0, 64);
 
 	MAP_DECL(P, PIECE_WHITE | PIECE_PAWN);
 	MAP_DECL(N, PIECE_WHITE | PIECE_KNIGHT);
@@ -56,5 +56,5 @@ void board_init()
 	MAP_DECL(q, PIECE_BLACK | PIECE_QUEEN);
 	MAP_DECL(k, PIECE_BLACK | PIECE_KING);
 
-	fen_to_arr(STARTING_FEN, board);
+	fen_to_arr(STARTING_FEN, &board);
 }

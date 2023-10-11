@@ -73,7 +73,7 @@ static void drawpieces(SDL_Renderer *renderer, int x, int y, int size)
 	for (int i = 0; i < 64; i++) {
 		int x2 = (i & 7) * size;
 		int y2 = (i >> 3) * size;
-		drawpiece(renderer, x + x2, y + y2, size, board[i]);
+		drawpiece(renderer, x + x2, y + y2, size, board.board[i]);
 	}
 }
 

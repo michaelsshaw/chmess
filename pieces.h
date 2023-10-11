@@ -12,10 +12,19 @@
 #define PIECE_WHITE 0
 #define PIECE_BLACK 8
 
-extern char board[64];
+struct board {
+	char board[64];
+	char turn;
+	char castling;
+	char en_passant;
+	char halfmove;
+	char fullmove;
+};
+
+extern struct board board;
 extern char turn;
 
-void fen_to_arr(const char *fen, char *out);
+void fen_to_arr(const char *fen, struct board *board);
 void board_init();
 
 #endif /* _PIECES_H_ */
