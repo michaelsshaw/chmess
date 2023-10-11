@@ -12,13 +12,18 @@
 #define PIECE_WHITE 0
 #define PIECE_BLACK 8
 
+#define CASTLE_WHITE_KING 1
+#define CASTLE_WHITE_QUEEN 2
+#define CASTLE_BLACK_KING 4
+#define CASTLE_BLACK_QUEEN 8
+
 struct board {
 	char board[64];
 	char turn;
 	char castling;
 	char en_passant;
-	char halfmove;
-	char fullmove;
+	int halfmove;
+	int fullmove;
 };
 
 extern struct board board;
