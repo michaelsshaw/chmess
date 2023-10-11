@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only
 CFLAGS := -Wall -pedantic -MMD -I. -Wno-strict-prototypes
 LDFLAGS := -lm -lSDL2 -lSDL2_image
 

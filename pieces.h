@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: GPL-2.0-only */
 #ifndef _PIECES_H_
 #define _PIECES_H_
 
