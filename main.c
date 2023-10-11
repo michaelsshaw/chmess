@@ -16,6 +16,9 @@
 void render(SDL_Renderer *renderer);
 void render_init(SDL_Renderer *renderer);
 
+void lmbdown(int x, int y);
+void lmbup(int x, int y);
+
 int main(int argc, char *argv[])
 {
 	SDL_Window *window =
@@ -33,8 +36,27 @@ int main(int argc, char *argv[])
 
 	while (1) {
 		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_QUIT) {
+			switch (event.type) {
+			case SDL_QUIT:
 				goto out;
+			case SDL_MOUSEBUTTONDOWN:
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					int x;
+					int y;
+					SDL_GetMouseState(&x, &y);
+
+					lmbdown(x, y);
+				}
+				break;
+			case SDL_MOUSEBUTTONUP:
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					int x;
+					int y;
+					SDL_GetMouseState(&x, &y);
+
+					lmbup(x, y);
+				}
+				break;
 			}
 		}
 

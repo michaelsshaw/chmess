@@ -18,6 +18,9 @@
 #define CASTLE_BLACK_KING 4
 #define CASTLE_BLACK_QUEEN 8
 
+#define SAMECOLOR(_a, _b) ((((_a) & 8) == ((_b) & 8)) && ((_a) != 0) && ((_b) != 0))
+#define OPPCOLOR(_a, _b) ((((_a) & 8) ^ ((_b) & 8)) && ((_a) != 0) && ((_b) != 0))
+
 struct board {
 	char board[64];
 	char turn;
@@ -25,6 +28,15 @@ struct board {
 	char en_passant;
 	int halfmove;
 	int fullmove;
+
+	/* piece carried by mouse cursor */
+	char held;
+	char held_origin;
+
+	int size; /* size of board */
+
+	int width; /* width of viewport */
+	int height; /* height of viewport */
 };
 
 extern struct board board;

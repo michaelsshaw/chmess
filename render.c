@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+#include <SDL2/SDL_mouse.h>
 #include <pieces.h>
 
 #define DARK_SQUARE 0x769656
@@ -76,6 +77,13 @@ static void drawpieces(SDL_Renderer *renderer, int x, int y, int size)
 		int y2 = (i >> 3) * size;
 		drawpiece(renderer, x + x2, y + y2, size, board.board[i]);
 	}
+
+	if (board.held) {
+		int mx, my;
+		SDL_GetMouseState(&mx, &my);
+
+		drawpiece(renderer, mx - (size >> 1), my - (size >> 1), size, board.held);
+	}
 }
 
 void render_init(SDL_Renderer *renderer)
@@ -92,14 +100,61 @@ void render_init(SDL_Renderer *renderer)
 
 void render(SDL_Renderer *renderer)
 {
-	int w, h;
-	SDL_GetRendererOutputSize(renderer, &w, &h);
+	SDL_GetRendererOutputSize(renderer, &board.width, &board.height);
 
 	/* Board position and size */
-	int size = MIN(w, h);
-	int x = (w - size) >> 1;
-	int y = (h - size) >> 1;
+	board.size = MIN(board.width, board.height);
+	int x = (board.width - board.size) >> 1;
+	int y = (board.height - board.size) >> 1;
 
-	drawboard(renderer, x, y, size);
-	drawpieces(renderer, x, y, size >> 3);
+	drawboard(renderer, x, y, board.size);
+	drawpieces(renderer, x, y, board.size >> 3);
+}
+
+void lmbdown(int x, int y)
+{
+	int bx = (board.width - board.size) >> 1;
+	int by = (board.height - board.size) >> 1;
+
+	if (x < bx || x > bx + board.size || y < by || y > by + board.size)
+		return;
+
+	/* square index of hovered square */
+	/* a8 is 0, h1 is 63 */
+	int hov_square = ((x - bx) / (board.size >> 3)) + (((y - by) / (board.size >> 3)) << 3);
+
+	if (hov_square < 0 || hov_square > 63)
+		return;
+
+	board.held = board.board[hov_square];
+	board.held_origin = hov_square;
+	board.board[hov_square] = 0;
+}
+
+void lmbup(int x, int y)
+{
+	int bx = (board.width - board.size) >> 1;
+	int by = (board.height - board.size) >> 1;
+
+	if (x < bx || x > bx + board.size || y < by || y > by + board.size)
+		goto invalid;
+
+	/* square index of hovered square */
+	/* a8 is 0, h1 is 63 */
+	int hov_square = ((x - bx) / (board.size >> 3)) + (((y - by) / (board.size >> 3)) << 3);
+
+	if (hov_square < 0 || hov_square > 63)
+		return;
+
+	if (SAMECOLOR(board.held, board.board[hov_square]))
+		goto invalid;
+
+	board.board[hov_square] = board.held;
+	board.held = 0;
+
+	return;
+
+invalid:
+	board.board[(int)board.held_origin] = board.held;
+	board.held = 0;
 }
