@@ -6,7 +6,7 @@
 	struct piece_mapping map_##_fen = { .id = _id }; \
 	mappings[(int)#_fen[0]] = map_##_fen
 
-#define STARTING_FEN "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
+#define STARTING_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 struct piece_mapping {
 	char id;
