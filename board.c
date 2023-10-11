@@ -191,7 +191,7 @@ void fen_to_arr(const char *fen, struct board *board)
 
 void board_init()
 {
-	memset(&board, 0, 64);
+	memset(&board, 0, sizeof(board));
 
 	MAP_DECL(P, PIECE_WHITE | PIECE_PAWN);
 	MAP_DECL(N, PIECE_WHITE | PIECE_KNIGHT);
