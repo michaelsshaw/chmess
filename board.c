@@ -108,7 +108,7 @@ static int fen_stage_4(const char *fen, struct board *board, int i)
 		}
 
 		if (fen[i] == '-') {
-			board->en_passant = 0xFF;
+			board->en_passant = -1;
 		} else {
 			/* error checking */
 			if (fen[i + 1] < '1' || fen[i + 1] > '8' || fen[i + 1] == '\0') {
