@@ -4,8 +4,8 @@
 
 #include <pieces.h>
 
-#define DARK_SQUARE 0xbd843e
-#define LIGHT_SQUARE 0xF9F9D3
+#define DARK_SQUARE 0x769656
+#define LIGHT_SQUARE 0xEEEED2
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
