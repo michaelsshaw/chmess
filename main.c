@@ -58,6 +58,11 @@ int main(int argc, char *argv[])
 					lmbup(x, y);
 				}
 				break;
+			case SDL_KEYDOWN:
+				if (event.key.keysym.sym == SDLK_r) {
+					board_init();
+				}
+				break;
 			}
 		}
 

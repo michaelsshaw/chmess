@@ -297,9 +297,21 @@ int nmoves(struct board *board, char square, char *out, int n)
 	int mov_vecs[8] = { 17, -17, 15, -15, 10, -10, 6, -6 };
 
 	for (int i = 0; i < 8; i++) {
+		/* knight legality check */
 		int mov_vec = mov_vecs[i];
 
 		int j = square + mov_vec;
+
+		/* overflow checking:
+		 * 
+		 * if the square the knight is on is the same color as the square we are checking the move for,
+		 * an overflow has occurred
+		*/
+		int jcol = ((j & 7) + (j >> 3)) & 1;
+		int ncol = ((square & 7) + (square >> 3)) & 1;
+
+		if (jcol == ncol)
+			continue;
 
 		/* check if square is occupied */
 		if (j >= 0 && j < 64) {
