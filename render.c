@@ -113,6 +113,10 @@ void render(SDL_Renderer *renderer)
 
 void lmbdown(int x, int y)
 {
+	/* mouse returning from off screen edge case */
+	if(board.held)
+		return;
+
 	int bx = (board.width - board.size) >> 1;
 	int by = (board.height - board.size) >> 1;
 
