@@ -18,7 +18,10 @@
 #define CASTLE_BLACK_KING 4
 #define CASTLE_BLACK_QUEEN 8
 
-#define SAMECOLOR(_a, _b) ((((_a) & 8) == ((_b) & 8)) && ((_a) != 0) && ((_b) != 0))
+#define COL_MASK 8
+#define PIECE_MASK 7
+
+#define SAMECOLOR(_a, _b) (((_a) & COL_MASK) == ((_b) & COL_MASK) && (_a) != 0 && (_b) != 0)
 #define OPPCOLOR(_a, _b) ((((_a) & 8) ^ ((_b) & 8)) && ((_a) != 0) && ((_b) != 0))
 
 struct board {
@@ -37,6 +40,9 @@ struct board {
 
 	int width; /* width of viewport */
 	int height; /* height of viewport */
+
+	char *legal_moves;
+	int legal_moves_count;
 };
 
 extern struct board board;

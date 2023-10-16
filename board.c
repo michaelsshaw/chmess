@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <pieces.h>
 
@@ -190,10 +191,210 @@ void fen_to_arr(const char *fen, struct board *board)
 	}
 }
 
+int rmoves(struct board *board, char square, char *out, int n)
+{
+	int mov_vecs[4] = { 8, -8, 1, -1 };
+
+	for (int i = 0; i < 4; i++) {
+		int mov_vec = mov_vecs[i];
+
+		int j = square + mov_vec;
+
+		while (j >= 0 && j < 64) {
+			/* check if square is not on same rank or file */
+			if ((j & 7) != (square & 7) && (j >> 3) != (square >> 3))
+				break;
+
+			/* check if square is occupied */
+			if (board->board[j] != 0) {
+				/* check if square is occupied by same color */
+				if ((board->board[j] & COL_MASK) == (board->board[(int)square] & COL_MASK) &&
+				    board->board[j] != PIECE_NONE)
+					break;
+
+				out[n++] = j;
+				break;
+			} else {
+				out[n++] = j;
+			}
+
+			j += mov_vec;
+		}
+	}
+
+	return n;
+}
+
+/* calculate bishop moves */
+int bmoves(struct board *board, char square, char *out, int n)
+{
+	int mov_vecs[4] = { 9, -9, 7, -7 };
+
+	for (int i = 0; i < 4; i++) {
+		int mov_vec = mov_vecs[i];
+
+		int j = square + mov_vec;
+
+		while (j >= 0 && j < 64) {
+			/* check if not on same diagonal in both directions */
+			if ((j & 7) - (square & 7) != (j >> 3) - (square >> 3) &&
+			    (j & 7) - (square & 7) != (square >> 3) - (j >> 3))
+				break;
+
+			/* check if square is occupied */
+			if (board->board[j] != 0) {
+				/* check if square is occupied by same color */
+				if ((board->board[j] & COL_MASK) == (board->board[(int)square] & COL_MASK) &&
+				    board->board[j] != PIECE_NONE)
+					break;
+
+				out[n++] = j;
+				break;
+			} else {
+				out[n++] = j;
+			}
+
+			j += mov_vec;
+		}
+	}
+
+	return n;
+}
+
+/* calculate queen moves */
+int qmoves(struct board *board, char square, char *out, int n)
+{
+	n = rmoves(board, square, out, n);
+	n = bmoves(board, square, out, n);
+
+	return n;
+}
+
+/* calculate king moves */
+int kmoves(struct board *board, char square, char *out, int n)
+{
+	int mov_vecs[8] = { 8, -8, 1, -1, 9, -9, 7, -7 };
+
+	for (int i = 0; i < 8; i++) {
+		int mov_vec = mov_vecs[i];
+
+		int j = square + mov_vec;
+
+		/* check if square is occupied */
+		if (j >= 0 && j < 64) {
+			/* check if square is occupied by same color */
+			if ((board->board[j] & COL_MASK) != (board->board[(int)square] & COL_MASK) || board->board[j] == PIECE_NONE)
+				out[n++] = j;
+		}
+	}
+
+	return n;
+}
+
+/* calculate knight moves */
+int nmoves(struct board *board, char square, char *out, int n)
+{
+	int mov_vecs[8] = { 17, -17, 15, -15, 10, -10, 6, -6 };
+
+	for (int i = 0; i < 8; i++) {
+		int mov_vec = mov_vecs[i];
+
+		int j = square + mov_vec;
+
+		/* check if square is occupied */
+		if (j >= 0 && j < 64) {
+			/* check if square is occupied by same color */
+			if ((board->board[j] & COL_MASK) != (board->board[(int)square] & COL_MASK) || board->board[j] == PIECE_NONE)
+				out[n++] = j;
+		}
+	}
+
+	return n;
+}
+
+/* calculate pawn moves */
+int pmoves(struct board *board, char square, char *out, int n)
+{
+	int mov_vecs[2] = { 8, 16 };
+	int take_vecs[2] = { 7, 9 };
+
+	for (int i = 0; i < 2; i++) {
+		int mov_vec = mov_vecs[i];
+
+		if ((board->board[(int)square] & COL_MASK) == PIECE_WHITE) {
+			mov_vec = -mov_vec;
+		}
+
+		int j = square + mov_vec;
+
+		/* check if square is occupied */
+		if (j >= 0 && j < 64) {
+			/* check if square is occupied by any piece */
+			if (board->board[j] == PIECE_NONE)
+				out[n++] = j;
+			else
+				break;
+
+			/* do not continue if pawn is not on starting rank */
+			if (!(square > 7 && square < 16) && !(square > 47 && square < 56))
+				break;
+		}
+	}
+
+	for (int i = 0; i < 2; i++) {
+		int take_vec = take_vecs[i];
+
+		if ((board->board[(int)square] & COL_MASK) == PIECE_WHITE) {
+			take_vec = -take_vec;
+		}
+
+		int j = square + take_vec;
+
+		/* check if square is occupied by piece of opposite color */
+		if (j >= 0 && j < 64) {
+			if ((board->board[j] & COL_MASK) != (board->board[(int)square] & COL_MASK) && board->board[j] != PIECE_NONE)
+				out[n++] = j;
+			if (j == board->en_passant)
+				out[n++] = j;
+		}
+	}
+
+	return n;
+}
+
+int legalmoves(struct board *board, char square, char *out, int n)
+{
+	if (board->board[(int)square] == PIECE_NONE)
+		return 0;
+
+	switch (board->board[(int)square] & PIECE_MASK) {
+	case PIECE_PAWN:
+		n = pmoves(board, square, out, n);
+		break;
+	case PIECE_KNIGHT:
+		n = nmoves(board, square, out, n);
+		break;
+	case PIECE_BISHOP:
+		n = bmoves(board, square, out, n);
+		break;
+	case PIECE_ROOK:
+		n = rmoves(board, square, out, n);
+		break;
+	case PIECE_QUEEN:
+		n = qmoves(board, square, out, n);
+		break;
+	case PIECE_KING:
+		n = kmoves(board, square, out, n);
+		break;
+	}
+
+	return n;
+}
+
 void lmbdown(int x, int y)
 {
 	/* mouse returning from off screen edge case */
-	if(board.held)
+	if (board.held)
 		return;
 
 	int bx = (board.width - board.size) >> 1;
@@ -208,6 +409,13 @@ void lmbdown(int x, int y)
 
 	if (hov_square < 0 || hov_square > 63)
 		return;
+
+	if (board.legal_moves == NULL)
+		board.legal_moves = malloc(64);
+
+	memset(board.legal_moves, 0, 64);
+
+	board.legal_moves_count = legalmoves(&board, hov_square, board.legal_moves, 0);
 
 	board.held = board.board[hov_square];
 	board.held_origin = hov_square;
@@ -232,14 +440,39 @@ void lmbup(int x, int y)
 	if (SAMECOLOR(board.held, board.board[hov_square]))
 		goto invalid;
 
-	board.board[hov_square] = board.held;
-	board.held = 0;
+	if (board.held != PIECE_NONE) {
+		for (int i = 0; i < board.legal_moves_count; i++) {
+			if (board.legal_moves[i] == hov_square) {
+				board.board[hov_square] = board.held;
+				board.held = 0;
+				board.held_origin = -1;
+				goto valid;
+			}
+		}
+
+		/* goto considered useful */
+		goto invalid;
+	}
+
+valid:
+	if (board.legal_moves != NULL) {
+		free(board.legal_moves);
+		board.legal_moves = NULL;
+		board.legal_moves_count = 0;
+	}
 
 	return;
 
 invalid:
+
+	if (board.legal_moves != NULL) {
+		free(board.legal_moves);
+		board.legal_moves = NULL;
+		board.legal_moves_count = 0;
+	}
 	board.board[(int)board.held_origin] = board.held;
 	board.held = 0;
+	board.held_origin = -1;
 }
 
 void board_init()

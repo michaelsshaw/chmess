@@ -45,6 +45,11 @@ static void color(SDL_Renderer *renderer, unsigned int color)
 	SDL_SetRenderDrawColor(renderer, color >> 16, color >> 8, color, 255);
 }
 
+static void colora(SDL_Renderer *renderer, unsigned int color, unsigned int alpha)
+{
+	SDL_SetRenderDrawColor(renderer, color >> 16, color >> 8, color, alpha);
+}
+
 static void drawboard(SDL_Renderer *renderer, int x, int y, int size)
 {
 	int square = size >> 3;
@@ -108,6 +113,19 @@ void render(SDL_Renderer *renderer)
 	int y = (board.height - board.size) >> 1;
 
 	drawboard(renderer, x, y, board.size);
-	drawpieces(renderer, x, y, board.size >> 3);
-}
 
+	if (board.legal_moves != NULL) {
+		int square = board.size >> 3;
+
+		for (int i = 0; i < board.legal_moves_count; i++) {
+			int x2 = (board.legal_moves[i] & 7) * square;
+			int y2 = (board.legal_moves[i] >> 3) * square;
+
+			colora(renderer, 0x0000FF, 40);
+			rect(renderer, x + x2, y + y2, square, square);
+		}
+	}
+
+	drawpieces(renderer, x, y, board.size >> 3);
+	color(renderer, 0);
+}
