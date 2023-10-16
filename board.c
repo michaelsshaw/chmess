@@ -190,6 +190,58 @@ void fen_to_arr(const char *fen, struct board *board)
 	}
 }
 
+void lmbdown(int x, int y)
+{
+	/* mouse returning from off screen edge case */
+	if(board.held)
+		return;
+
+	int bx = (board.width - board.size) >> 1;
+	int by = (board.height - board.size) >> 1;
+
+	if (x < bx || x > bx + board.size || y < by || y > by + board.size)
+		return;
+
+	/* square index of hovered square */
+	/* a8 is 0, h1 is 63 */
+	int hov_square = ((x - bx) / (board.size >> 3)) + (((y - by) / (board.size >> 3)) << 3);
+
+	if (hov_square < 0 || hov_square > 63)
+		return;
+
+	board.held = board.board[hov_square];
+	board.held_origin = hov_square;
+	board.board[hov_square] = 0;
+}
+
+void lmbup(int x, int y)
+{
+	int bx = (board.width - board.size) >> 1;
+	int by = (board.height - board.size) >> 1;
+
+	if (x < bx || x > bx + board.size || y < by || y > by + board.size)
+		goto invalid;
+
+	/* square index of hovered square */
+	/* a8 is 0, h1 is 63 */
+	int hov_square = ((x - bx) / (board.size >> 3)) + (((y - by) / (board.size >> 3)) << 3);
+
+	if (hov_square < 0 || hov_square > 63)
+		return;
+
+	if (SAMECOLOR(board.held, board.board[hov_square]))
+		goto invalid;
+
+	board.board[hov_square] = board.held;
+	board.held = 0;
+
+	return;
+
+invalid:
+	board.board[(int)board.held_origin] = board.held;
+	board.held = 0;
+}
+
 void board_init()
 {
 	memset(&board, 0, sizeof(board));
